@@ -1,6 +1,7 @@
 import discord
+import os
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 from discord.ext.commands import bot
 from discord.ext.commands import check
@@ -11,6 +12,11 @@ from discord.ext.commands import (CommandOnCooldown, CommandNotFound)
 from dotenv import load_dotenv
 from os.path import join, dirname
 from python_aternos import Client
+
+try:
+    guildids = int(os.environ["GUILD_ID"])
+except:
+    guildids = int(os.environ.get("GUILD_ID"))
 
 try:
     aternos = Client(os.environ['ATERNOS_USERNAME'], password=os.environ['ATERNOS_PASSWORD'])
@@ -26,7 +32,16 @@ class commands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        self.change_presence.start()
         print(f"{os.path.basename(__file__)} ready")
+    
+    @tasks.loop(seconds=10.0)
+    async def change_presence(self):
+        status = int(myserv.status)
+        if status == 0:
+            await self.bot.change_presence(status=discord.Status.idle, activity=discord.Game("Not Minecraft"))
+        else:
+            await self.bot.change_presence(activity=discord.Game("Minecraft"))
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc):
@@ -35,10 +50,9 @@ class commands(commands.Cog):
         elif isinstance(exc, CommandNotFound):
             await ctx.send("command tidak ditemukan")
 
-    @commands.slash_command()
+    @commands.command(aliases=['on'])
     @cooldown(1, 60, BucketType.guild)
-    async def turnon(ctx):
-
+    async def turnon(self, ctx):
         # Get Status before turning on
         try:
             status = myserv.status
@@ -49,14 +63,19 @@ class commands(commands.Cog):
         # Status Check
         if status == 0:
             # Try to start
-            try:
-                myserv.start()
-                await ctx.send("server otw nyala, tunggu bentar ya")
-            except:
-                await ctx.send("Error: Failed to start server, please check bot console for more info.")
+            while True:
+                try:
+                    myserv.start()
+                    await ctx.send("server otw nyala, tunggu bentar ya")
+                except SyntaxError:
+                    await ctx.send("Error: Failed to start server, please check bot console for more info.")
+                    continue
 
         elif status == 1:
             await ctx.send("server udah nyala wth")
+        
+        elif status == 2:
+            await ctx.send("sabar masih loading")
 
         else:
             await ctx.send("harusnya servernya udah nyala sih, kalo belum ya... gatau lah wkwk")
