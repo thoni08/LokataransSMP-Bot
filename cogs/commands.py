@@ -19,9 +19,9 @@ except:
     guildids = int(os.environ.get("GUILD_ID"))
 
 try:
-    aternos = Client(os.environ['ATERNOS_USERNAME'], password=os.environ['ATERNOS_PASSWORD'])
+    aternos = Client(str(os.environ['ATERNOS_USERNAME']), password=str(os.environ['ATERNOS_PASSWORD']))
 except:
-    aternos = Client(os.environ.get('ATERNOS_USERNAME'), password=os.environ.get('ATERNOS_PASSWORD'))
+    aternos = Client(str(os.environ.get('ATERNOS_USERNAME')), password=str(os.environ.get('ATERNOS_PASSWORD')))
 
 atservers = aternos.servers
 myserv = atservers[0]

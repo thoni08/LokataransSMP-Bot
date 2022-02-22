@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix="!", case_insensitive=True)
 
 @bot.event
 async def on_ready():
-    await self.bot.change_presence(status=discord.Status.idle)
+    await bot.change_presence(status=discord.Status.idle)
     print('bot ready')
 
 for filename in os.listdir('./cogs'):
