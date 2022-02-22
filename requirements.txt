@@ -1,0 +1,4 @@
+mcstatus
+py-cord
+python-aternos
+python-dotenv
