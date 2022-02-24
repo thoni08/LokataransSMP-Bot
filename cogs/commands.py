@@ -79,6 +79,8 @@ class commands(commands.Cog):
 
         else:
             await ctx.send("harusnya servernya udah nyala sih, kalo belum ya... gatau lah wkwk")
+
+    print(f'{ctx.message.author} executed "turnon"')
         
 def setup(bot):
     bot.add_cog(commands(bot))
