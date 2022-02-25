@@ -54,11 +54,14 @@ class commands(commands.Cog):
     @cooldown(1, 60, BucketType.guild)
     async def turnon(self, ctx):
         # Get Status before turning on
-        try:
-            status = myserv.status
-        except:
-            await ctx.send("Error: Cannot get server status, please check bot console for more info.")
-            print("Error: Cannot get server status")
+        while True:
+            try:
+                status = myserv.status
+            except:
+                await ctx.send("Error: Cannot get server status, please check bot console for more info.")
+                print("Error: Cannot get server status")
+                continue
+            break
 
         # Status Check
         if status == 0:
@@ -80,7 +83,7 @@ class commands(commands.Cog):
         else:
             await ctx.send("harusnya servernya udah nyala sih, kalo belum ya... gatau lah wkwk")
 
-    print(f'{ctx.message.author} executed "turnon"')
+        print(f'{ctx.message.author} executed "turnon"')
         
 def setup(bot):
     bot.add_cog(commands(bot))
