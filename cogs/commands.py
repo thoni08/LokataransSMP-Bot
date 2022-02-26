@@ -73,6 +73,7 @@ class commands(commands.Cog):
                 except SyntaxError:
                     await ctx.send("Error: Failed to start server, please check bot console for more info.")
                     continue
+                break
 
         elif status == 1:
             await ctx.send("server udah nyala wth")
