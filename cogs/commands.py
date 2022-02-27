@@ -18,10 +18,16 @@ try:
 except:
     guildids = int(os.environ.get("GUILD_ID"))
 
-try:
-    aternos = Client(str(os.environ['ATERNOS_USERNAME']), password=str(os.environ['ATERNOS_PASSWORD']))
-except:
-    aternos = Client(str(os.environ.get('ATERNOS_USERNAME')), password=str(os.environ.get('ATERNOS_PASSWORD')))
+aternos = None
+while aternos is None:
+    try:
+        try:
+            aternos = Client(str(os.environ['ATERNOS_USERNAME']), password=str(os.environ['ATERNOS_PASSWORD']))
+        except:
+            aternos = Client(str(os.environ.get('ATERNOS_USERNAME')), password=str(os.environ.get('ATERNOS_PASSWORD')))
+    except:
+        print("Failed to login. Retrying...")
+        pass
 
 atservers = aternos.servers
 myserv = atservers[0]
@@ -37,7 +43,16 @@ class commands(commands.Cog):
     
     @tasks.loop(seconds=10.0)
     async def change_presence(self):
-        status = int(myserv.status)
+        status = None
+        while status is None:
+            try:
+                status = int(myserv.status)
+            except SyntaxError:
+                print("Unable to get status.")
+            except:
+                print("Unable to get status.")
+                pass
+
         if status == 0:
             await self.bot.change_presence(status=discord.Status.idle, activity=discord.Game("Not Minecraft"))
         else:
@@ -54,14 +69,14 @@ class commands(commands.Cog):
     @cooldown(1, 60, BucketType.guild)
     async def turnon(self, ctx):
         # Get Status before turning on
-        while True:
+        status = None
+        while status is None:
             try:
-                status = myserv.status
+                status = int(myserv.status)
             except:
                 await ctx.send("Error: Cannot get server status, please check bot console for more info.")
-                print("Error: Cannot get server status")
-                continue
-            break
+                print("Error: Cannot get server status.")
+                pass
 
         # Status Check
         if status == 0:
@@ -72,6 +87,7 @@ class commands(commands.Cog):
                     await ctx.send("server otw nyala, tunggu bentar ya")
                 except SyntaxError:
                     await ctx.send("Error: Failed to start server, please check bot console for more info.")
+                except:
                     continue
                 break
 
