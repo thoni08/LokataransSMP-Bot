@@ -99,6 +99,7 @@ class commands(commands.Cog):
 
         else:
             await ctx.send("harusnya servernya udah nyala sih, kalo belum ya... gatau lah wkwk")
+        status = None
 
         print(f'{ctx.message.author} executed "turnon"')
         
