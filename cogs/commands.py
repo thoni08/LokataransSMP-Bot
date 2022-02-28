@@ -43,8 +43,7 @@ class commands(commands.Cog):
     
     @tasks.loop(seconds=10.0)
     async def change_presence(self):
-        status_forpresence = None
-        while status_forpresence is None:
+        while True:
             try:
                 status_forpresence = int(myserv.status)
             except SyntaxError:
@@ -52,6 +51,7 @@ class commands(commands.Cog):
             except:
                 print("Unable to get status.")
                 pass
+            break
 
         if status_forpresence == 0:
             await self.bot.change_presence(status=discord.Status.idle, activity=discord.Game("Not Minecraft"))
