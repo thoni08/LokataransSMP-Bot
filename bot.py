@@ -25,3 +25,13 @@ try:
     bot.run(os.environ['TOKEN'])
 except:
     bot.run(os.environ.get('TOKEN'))
+
+<?php 
+    echo "HAI THONI";
+    
+    $_hai=["halo", "thoni", "selamat", "malam"];
+    echo "hai thoni, saya gabut..." $_hai[2][3];
+?>
+
+
+
