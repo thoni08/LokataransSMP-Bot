@@ -13,22 +13,6 @@ from dotenv import load_dotenv
 from os.path import join, dirname
 from python_aternos import Client
 
-try:
-    guildids = int(os.environ["GUILD_ID"])
-except:
-    guildids = int(os.environ.get("GUILD_ID"))
-
-aternos = None
-while aternos is None:
-    try:
-        try:
-            aternos = Client(str(os.environ['ATERNOS_USERNAME']), password=str(os.environ['ATERNOS_PASSWORD']))
-        except:
-            aternos = Client(str(os.environ.get('ATERNOS_USERNAME')), password=str(os.environ.get('ATERNOS_PASSWORD')))
-    except:
-        print("Failed to login. Retrying...")
-        pass
-
 atservers = aternos.servers
 myserv = atservers[0]
 
@@ -38,7 +22,22 @@ class commands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        # Start change_presence loop
         self.change_presence.start()
+
+        # Try to login to Aternos
+        aternos = None
+        while aternos is None:
+            try:
+                try:
+                    aternos = Client(str(os.environ['ATERNOS_USERNAME']), password=str(os.environ['ATERNOS_PASSWORD']))
+                except:
+                    aternos = Client(str(os.environ.get('ATERNOS_USERNAME')), password=str(os.environ.get('ATERNOS_PASSWORD')))
+            except:
+                print("Failed to login. Retrying...")
+                pass
+
+        # Print if ready
         print(f"{os.path.basename(__file__)} ready")
     
     @tasks.loop(seconds=10.0)
