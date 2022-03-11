@@ -1,14 +1,11 @@
-import discord
-import os
+import asyncio, discord, os, time
 
-from discord.ext import commands, tasks
+from discord.ext import tasks, commands
 from discord.utils import get
-from discord.ext.commands import bot
-from discord.ext.commands import check
-from discord.ext.commands import cooldown
-from discord.ext.commands import BucketType
+from discord.ext.commands import bot, check, cooldown, BucketType
 from discord.ext.commands import (CommandOnCooldown, CommandNotFound)
 
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from os.path import join, dirname
 from python_aternos import Client
@@ -39,14 +36,17 @@ class commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        # Start loop
+        self.change_presence.start()
+        
+    def cog_unload(self):
+        self.change_presence.cancel()
+
     @commands.Cog.listener()
     async def on_ready(self):
-        # Start change_presence loop
-        self.change_presence.start()
-
         # Print if ready
         print(f"{os.path.basename(__file__)} ready")
-    
+
     @tasks.loop(seconds=10.0)
     async def change_presence(self):
         while True:
@@ -59,10 +59,16 @@ class commands(commands.Cog):
                 pass
             break
 
-        if status_forpresence == 0:
-            await self.bot.change_presence(status=discord.Status.idle, activity=discord.Game("Not Minecraft"))
-        else:
+        if status_forpresence == 1:
             await self.bot.change_presence(activity=discord.Game("Minecraft"))
+            # print(f"Server status is {status_forpresence}")
+        else:
+            await self.bot.change_presence(status=discord.Status.idle, activity=discord.Game("Not Minecraft"))
+            # print(f"Server status is {status_forpresence}")
+    
+    @change_presence.before_loop
+    async def before_change_presence(self):
+        await self.bot.wait_until_ready()
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc):
@@ -74,6 +80,8 @@ class commands(commands.Cog):
     @commands.command(aliases=['on'])
     @cooldown(1, 60, BucketType.guild)
     async def turnon(self, ctx):
+        time = datetime.utcnow() + timedelta(hours=7)
+
         # Get Status before turning on
         status = None
         while status is None:
@@ -83,6 +91,7 @@ class commands(commands.Cog):
                 await ctx.send("Error: Cannot get server status, please check bot console for more info.")
                 print("Error: Cannot get server status.")
                 pass
+        print(f"Server status is {status}")
 
         # Status Check
         if status == 0:
@@ -94,7 +103,7 @@ class commands(commands.Cog):
                 except SyntaxError:
                     await ctx.send("Error: Failed to start server, please check bot console for more info.")
                 except:
-                    continue
+                    pass
                 break
 
         elif status == 1:
@@ -105,9 +114,10 @@ class commands(commands.Cog):
 
         else:
             await ctx.send("harusnya servernya udah nyala sih, kalo belum ya... gatau lah wkwk")
+
         status = None
 
-        print(f'{ctx.message.author} executed "turnon"')
+        print(f'{ctx.message.author} executed "turnon" at {time}')
         
 def setup(bot):
     bot.add_cog(commands(bot))
